@@ -9,6 +9,9 @@
     "build": "browserify src/index.js -t babelify -t glslify -p tinyify > index.js"
   },
   "devDependencies": {
+    "babel-plugin-transform-es2015-destructuring": "^6.23.0",
+    "babel-plugin-transform-es2015-parameters": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babelify": "^7.3.0",
     "browserify": "^13.1.1",

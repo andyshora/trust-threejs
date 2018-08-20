@@ -7,11 +7,14 @@ import resize from 'brindille-resize'
 import { createPointCloud } from './utils/objects'
 import OrbitControls from './controls/OrbitControls'
 import { gui } from './utils/debug'
+import noise from './noise/10000.json'
 
 /* Custom settings */
 const SETTINGS = {
   useComposer: false
 }
+
+const CLOUD_SIZE = 100
 
 /* Init renderer and canvas */
 const container = document.body
@@ -40,7 +43,7 @@ frontLight.position.x = 20
 backLight.position.x = -20
 
 /* Actual content of the scene */
-const { cloud, geometry } = createPointCloud()
+const { cloud, geometry } = createPointCloud({ numPoints: 100, size: CLOUD_SIZE })
 scene.add(cloud)
 
 /* Various event listeners */
@@ -56,16 +59,21 @@ gui.add(SETTINGS, 'useComposer')
 /* -------------------------------------------------------------------------------- */
 
 function animate() {
-		requestAnimationFrame(animate);
-		render();
-	}
+  requestAnimationFrame(animate);
+  render();
+}
 
-function updatePointPositions() {
+function updatePointPositions(i) {
   const { vertices } = geometry;
-  // console.log('vertices', vertices.length);
-  vertices.forEach((v, i) => {
-    const DIR = i % 2 === 1 ? -1 : 1
-    v.setX( v.x += DIR * 0.1 )
+
+  vertices.forEach((v, j) => {
+
+    const n = noise[(i + j) % 10000];
+    const n2 = noise[(i + j + 5000) % 10000];
+
+    const DIR = j % 2 === 1 ? -1 : 1
+    v.setX(-(CLOUD_SIZE / 2) + (n * CLOUD_SIZE))
+    v.setY(-(CLOUD_SIZE / 2) + (n2 * CLOUD_SIZE))
   })
 
   geometry.verticesNeedUpdate = true
@@ -83,9 +91,11 @@ function onResize () {
 /**
   Render loop
 */
-function render (dt) {
+let i = 0
+function render(dt) {
   controls.update()
-  updatePointPositions();
+  updatePointPositions(i % 10000);
+  i++
   if (SETTINGS.useComposer) {
     composer.reset()
     composer.render(scene, camera)
