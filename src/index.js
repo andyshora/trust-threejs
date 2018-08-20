@@ -9,6 +9,16 @@ import OrbitControls from './controls/OrbitControls'
 import { gui } from './utils/debug'
 import noise from './noise/10000.json'
 
+import Flora from 'florajs';
+
+import Item from './objects/Item';
+import Mover from './objects/Mover';
+import System from './objects/System';
+import World from './objects/World';
+
+System.Classes.Mover = Mover;
+System.Classes.Item = Item;
+
 /* Custom settings */
 const SETTINGS = {
   useComposer: false
@@ -16,52 +26,70 @@ const SETTINGS = {
 
 const CLOUD_SIZE = 100
 
-/* Init renderer and canvas */
-const container = document.body
-const renderer = new WebGLRenderer({antialias: true})
-renderer.setClearColor(0x323232)
-container.style.overflow = 'hidden'
-container.style.margin = 0
-container.appendChild(renderer.domElement)
+let scene, camera, controls, engine, renderer, composer, world
 
-/* Composer for special effects */
-const composer = new WAGNER.Composer(renderer)
-const bloomPass = new BloomPass()
-const fxaaPass = new FXAAPass()
+function init() {
+  System.setup(function() {
+    world = new World({
+      data: {
+        size: CLOUD_SIZE,
+        numPoints: 100
+      }
+    });
+    this._addWorld(world);
+    world.init();
+    this.add('FastAgent', {}, world);
+  });
+  System.loop();
 
-/* Main scene and camera */
-const scene = new Scene()
-const camera = new PerspectiveCamera(50, resize.width / resize.height, 0.1, 1000)
-const controls = new OrbitControls(camera, {element: renderer.domElement, parent: renderer.domElement, distance: 100, phi: Math.PI * 0.5})
+  /* Init renderer and canvas */
+  const container = document.body
+  renderer = new WebGLRenderer({ antialias: true })
+  renderer.setClearColor(0xffffff)
+  container.style.overflow = 'hidden'
+  container.style.margin = 0
+  container.appendChild(renderer.domElement)
 
-/* Lights */
-const frontLight = new PointLight(0xFFFFFF, 1)
-const backLight = new PointLight(0xFFFFFF, 0.5)
-scene.add(frontLight)
-scene.add(backLight)
-frontLight.position.x = 20
-backLight.position.x = -20
+  /* Composer for special effects */
+  composer = new WAGNER.Composer(renderer)
+  const bloomPass = new BloomPass()
+  const fxaaPass = new FXAAPass()
 
-/* Actual content of the scene */
-const { cloud, geometry } = createPointCloud({ numPoints: 100, size: CLOUD_SIZE })
-scene.add(cloud)
+  /* Main scene and camera */
+  scene = new Scene()
+  camera = new PerspectiveCamera(50, resize.width / resize.height, 0.1, 1000)
+  controls = new OrbitControls(camera, {element: renderer.domElement, parent: renderer.domElement, distance: 100, phi: Math.PI * 0.5})
 
-/* Various event listeners */
-resize.addListener(onResize)
+  /* Lights */
+  const frontLight = new PointLight(0xFFFFFF, 1)
+  const backLight = new PointLight(0xFFFFFF, 0.5)
+  scene.add(frontLight)
+  scene.add(backLight)
+  frontLight.position.x = 20
+  backLight.position.x = -20
 
-/* create and launch main loop */
-const engine = loop(render)
-engine.start()
+  /* Actual content of the scene */
+  // const { cloud, geometry } = createPointCloud({ numPoints: 100, size: CLOUD_SIZE })
+  const cloud = System.firstWorld().cloud;
+  if (cloud) {
+    scene.add(cloud)
+  }
 
-/* some stuff with gui */
-gui.add(SETTINGS, 'useComposer')
+  /* Various event listeners */
+  resize.addListener(onResize)
+
+  /* create and launch main loop */
+  engine = loop(render)
+  engine.start()
+
+  /* some stuff with gui */
+  // gui.add(SETTINGS, 'useComposer')
+}
+
+init();
+
 
 /* -------------------------------------------------------------------------------- */
-
-function animate() {
-  requestAnimationFrame(animate);
-  render();
-}
 
 function updatePointPositions(i) {
   const { vertices } = geometry;
@@ -94,15 +122,9 @@ function onResize () {
 let i = 0
 function render(dt) {
   controls.update()
-  updatePointPositions(i % 10000);
+  // updatePointPositions(i % 10000);
   i++
-  if (SETTINGS.useComposer) {
-    composer.reset()
-    composer.render(scene, camera)
-    composer.pass(bloomPass)
-    composer.pass(fxaaPass)
-    composer.toScreen()
-  } else {
-    renderer.render(scene, camera)
-  }
+
+  renderer.render(scene, camera)
+
 }

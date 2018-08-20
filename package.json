@@ -22,6 +22,7 @@
     "@superguigui/wagner": "*",
     "brindille-resize": "^0.1.3",
     "clamp": "^1.0.1",
+    "florajs": "^3.1.2",
     "glslify": "^5.0.2",
     "guigui": "^2.0.0",
     "mouse-event-offset": "^3.0.2",
