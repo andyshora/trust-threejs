@@ -1,8 +1,10 @@
 /*global window, document */
 /*jshint supernew:true */
 
-var Item = require('./item'),
-    World = require('./world'),
+var Item = require('./Item'),
+    Mover = require('./Mover'),
+    World = require('./World'),
+    FastAgent = require('./FastAgent'),
     Vector = require('vector2d-lib'),
     Utils = require('drawing-utils-lib'),
     FPSDisplay = require('fpsdisplay');
@@ -22,7 +24,10 @@ var System = {
  * @memberof System
  */
 System.Classes = {
-  'Item': Item
+  'Item': Item,
+  'Mover': Mover,
+  'FastAgent': FastAgent,
+  'World': World
 };
 
 /**

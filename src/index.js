@@ -28,19 +28,30 @@ const CLOUD_SIZE = 100
 
 let scene, camera, controls, engine, renderer, composer, world
 
-function init() {
+function initSystem() {
   System.setup(function() {
-    world = new World({
+    // world = new World({
+      // data: {
+      //   size: CLOUD_SIZE,
+      //   numPoints: 100
+      // }
+    // });
+    // this._addWorld(world);
+    this.add('World', {
       data: {
         size: CLOUD_SIZE,
         numPoints: 100
       }
-    });
-    this._addWorld(world);
-    world.init();
-    this.add('FastAgent', {}, world);
+    })
+    this.add('FastAgent');
+    this._toggleFPS();
   });
   System.loop();
+}
+
+function init() {
+
+  initSystem()
 
   /* Init renderer and canvas */
   const container = document.body
@@ -91,13 +102,15 @@ init();
 
 /* -------------------------------------------------------------------------------- */
 
+
 function updatePointPositions(i) {
+  const geometry = System.firstWorld().geometry
   const { vertices } = geometry;
 
   vertices.forEach((v, j) => {
 
-    const n = noise[(i + j) % 10000];
-    const n2 = noise[(i + j + 5000) % 10000];
+    const n = noise[(i + j) % 10000]
+    const n2 = noise[(i + j + 5000) % 10000]
 
     const DIR = j % 2 === 1 ? -1 : 1
     v.setX(-(CLOUD_SIZE / 2) + (n * CLOUD_SIZE))

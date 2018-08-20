@@ -21,34 +21,6 @@ function Item() {
 Item._idCount = 0;
 
 /**
- * Holds a transform property based on supportedFeatures.
- * @memberof Item
- * @private
- */
-Item._stylePosition =
-    'transform: translate3d(<x>px, <y>px, 0) rotate(<angle>deg) scale(<scale>, <scale>); ' +
-    '-webkit-transform: translate3d(<x>px, <y>px, 0) rotate(<angle>deg) scale(<scale>, <scale>); ' +
-    '-moz-transform: translate3d(<x>px, <y>px, 0) rotate(<angle>deg) scale(<scale>, <scale>); ' +
-    '-o-transform: translate3d(<x>px, <y>px, 0) rotate(<angle>deg) scale(<scale>, <scale>); ' +
-    '-ms-transform: translate3d(<x>px, <y>px, 0) rotate(<angle>deg) scale(<scale>, <scale>);';
-
-/**
- * The base DOM element to use as the Item view.
- * @type {string}
- * @memberof Item
- * @private
- */
-Item.baseElement = 'div';
-
-/**
- * The base DOM element attributes.
- * @type {Object}
- * @memberof Item
- * @private
- */
-Item.baseElementAttributes = {};
-
-/**
  * Resets all properties.
  * @function init
  * @memberof Item
@@ -164,13 +136,9 @@ Item.prototype.init = function(world, opt_options) {
 
   this.id = this.name + Item._idCount;
 
-  console.log('this.name', this.name);
   if (!this.el) {
-    // todo - add vertex to pointcloud
-    if (this.name === 'FastAgent') {
-      this.world.addVertex(this.location);
-    }
     this.world.add(this.el);
+    this.el = 1;
   }
 };
 
