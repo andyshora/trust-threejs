@@ -261,24 +261,6 @@ Item.prototype._checkCameraEdges = function(lastX, lastY, x, y) {
  * @function draw
  * @memberof Item
  */
-Item.prototype.draw = function() {
-  const data = {
-    x: this.location.x - (this.width / 2),
-    y: this.location.y - (this.height / 2),
-    angle: this.angle,
-    scale: this.scale || 1,
-    width: this.width,
-    height: this.height,
-    colorMode: this.colorMode,
-    color0: this.color[0],
-    color1: this.color[1],
-    color2: this.color[2],
-    opacity: this.opacity,
-    zIndex: this.zIndex,
-    visibility: this.visibility
-  }
-
-  this.data = data;
-};
+Item.prototype.draw = function() {};
 
 module.exports = Item;

@@ -21,11 +21,14 @@ function World(opt_options) {
   this.el = options.el || document.body;
   this.name = 'World';
 
-  if (options.data) {
-    const { cloud, geometry } = createPointCloud({ numPoints: 0, size: options.data.size, pointSize: 0.5 })
-    this.cloud = cloud;
-    this.geometry = geometry;
-  }
+  const agentCloud = createPointCloud({ pointSize: options.Walker.pointSize, color: options.Walker.color })
+  const walkerCloud = createPointCloud({ pointSize: options.FastAgent.pointSize, color: options.FastAgent.color })
+
+  this.clouds = {
+    FastAgent: agentCloud,
+    Walker: walkerCloud
+  };
+
 
   /**
    * Worlds do not have worlds. However, assigning an
@@ -65,9 +68,9 @@ World.prototype.init = function(world, opt_options) {
   this.c = typeof options.c !== 'undefined' ? options.c : 0.1;
   this.pauseStep = !!options.pauseStep;
   this.pauseDraw = !!options.pauseDraw;
-  this.el.className = this.name.toLowerCase();
   this._camera = this._camera || new Vector();
   this.fastAgents = [];
+  this.walkers = [];
 };
 
 /**
@@ -75,27 +78,22 @@ World.prototype.init = function(world, opt_options) {
  * @param {Object} item An instance of item.
  */
 World.prototype.add = function(item) {
-  console.log('World.add', item, item.location.x, item.location.y);
-  this.fastAgents.push(item);
+  console.log('World.add', item);
 
-  // add a vertex to the cloud to represent FastAgent's position
-  this.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
-
-  console.log('updated cloud', this.cloud);
-
-  // this.el.appendChild(item);
-  // todo - add item to point cloud
-};
-
-/**
- * Adds an item to the world's view.
- * @param {Object} item An instance of item.
- */
-World.prototype.addVertex = function(item) {
-  console.log('World.addVertex', item);
-  // this.pointCloud.geometry.vertices.push()
-  // this.el.appendChild(item);
-  // todo - add item to point cloud
+  switch (item.name) {
+    case 'Walker':
+      this.walkers.push(item);
+      // add a vertex to the cloud to represent Walker's position
+      this.clouds.Walker.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
+      break;
+    case 'FastAgent':
+      this.fastAgents.push(item);
+      // add a vertex to the cloud to represent FastAgent's position
+      this.clouds.FastAgent.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
+      break;
+    default:
+      break;
+  }
 };
 
 /**
@@ -106,38 +104,20 @@ World.prototype.addVertex = function(item) {
 World.prototype.step = function() {
   // update position of all vertices
   for (let i = 0; i < this.fastAgents.length; i++) {
-    const v = this.geometry.vertices[i]
-    v.setX(this.fastAgents[i].location.x / 10)
-    v.setY(this.fastAgents[i].location.y / 10)
+    const v = this.clouds.FastAgent.geometry.vertices[i]
+    v.setX(this.fastAgents[i].location.x)
+    v.setY(this.fastAgents[i].location.y)
   }
-  this.geometry.verticesNeedUpdate = true;
+  // update position of all vertices
+  for (let i = 0; i < this.walkers.length; i++) {
+    const v = this.clouds.Walker.geometry.vertices[i]
+    v.setX(this.walkers[i].location.x)
+    v.setY(this.walkers[i].location.y)
+  }
+  this.clouds.FastAgent.geometry.verticesNeedUpdate = true;
+  this.clouds.Walker.geometry.verticesNeedUpdate = true;
+
   this.location.add(this._camera);
-};
-
-/**
- * Updates the corresponding DOM element's style property.
- * @function draw
- * @memberof World
- */
-World.prototype.draw = function() {
-  const data = {
-    x: this.location.x - (this.width / 2),
-    y: this.location.y - (this.height / 2),
-    angle: this.angle,
-    scale: this.scale || 1,
-    width: this.width,
-    height: this.height,
-    color0: this.color[0],
-    color1: this.color[1],
-    color2: this.color[2],
-    borderWidth: this.borderWidth,
-    borderStyle: this.borderStyle,
-    borderColor1: this.borderColor[0],
-    borderColor2: this.borderColor[1],
-    borderColor3: this.borderColor[2]
-  };
-
-  this.data = data;
 };
 
 module.exports = World;

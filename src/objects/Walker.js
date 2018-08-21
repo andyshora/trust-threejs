@@ -39,10 +39,6 @@ Utils.extend(Walker, Mover);
  * @param {number} [opt_options.perlinOffsetX = Math.random() * 10000] The x offset in the Perlin Noise space.
  * @param {number} [opt_options.perlinOffsetY = Math.random() * 10000] The y offset in the Perlin Noise space.
  * @param {string|Array} [opt_options.color = 255, 150, 50] Color.
- * @param {string|number} [opt_options.borderWidth = '1em'] Border width.
- * @param {string} [opt_options.borderStyle = 'double'] Border style.
- * @param {string|Array} [opt_options.borderColor = 255, 255, 255] Border color.
- * @param {string} [opt_options.borderRadius = 100] Border radius.
  * @param {number} [opt_options.opacity = 0.75] The object's opacity.
  * @param {number} [opt_options.zIndex = 1] The object's zIndex.
  */
@@ -63,12 +59,7 @@ Walker.prototype.init = function(world, opt_options) {
   this.perlinOffsetX = typeof options.perlinOffsetX === 'undefined' ? Math.random() * 10000 : options.perlinOffsetX;
   this.perlinOffsetY = typeof options.perlinOffsetY === 'undefined' ? Math.random() * 10000 : options.perlinOffsetY;
   this.color = options.color || [255, 150, 50];
-  this.borderWidth = typeof options.borderWidth === 'undefined' ? 0 : options.borderWidth;
-  this.borderStyle = options.borderStyle || 'none';
-  this.borderColor = options.borderColor || [255, 255, 255];
-  this.borderRadius = typeof options.borderRadius === 'undefined' ? 100 : options.borderRadius;
   this.opacity = typeof options.opacity === 'undefined' ? 1 : options.opacity;
-  this.zIndex = typeof options.zIndex === 'undefined' ? 0 : options.zIndex;
 
   this._randomVector = new Vector();
 };

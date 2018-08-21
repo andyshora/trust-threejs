@@ -1,23 +1,7 @@
 import { Geometry, Points, PointsMaterial, Math, Vector3 } from 'three'
 
-export const createPointCloud = ({ numPoints = 50, size = 1000, pointSize = 1 }) => {
-
+export const createPointCloud = ({ pointSize = 1, color = 0x666666 }) => {
   const geometry = new Geometry()
-
-  for ( var i = 0; i < numPoints; i ++ ) {
-
-  	var star = new Vector3()
-  	star.x = Math.randFloatSpread(size / 2)
-  	star.y = Math.randFloatSpread(size / 2)
-  	star.z = Math.randFloatSpread(0)
-
-    console.log(star)
-
-  	geometry.vertices.push(star);
-  }
-
-  const material = new PointsMaterial({ color: 0x666666, size: pointSize })
-  const cloud = new Points(geometry, material);
-
-  return { geometry, cloud }
+  const material = new PointsMaterial({ color, size: pointSize })
+  return new Points(geometry, material);
 }

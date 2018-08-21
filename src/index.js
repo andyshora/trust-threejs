@@ -1,4 +1,4 @@
-import { WebGLRenderer, Scene, PerspectiveCamera, PointLight } from 'three'
+import { WebGLRenderer, Scene, OrthographicCamera, PointLight, Vector3 } from 'three'
 import loop from 'raf-loop'
 import WAGNER from '@superguigui/wagner'
 import BloomPass from '@superguigui/wagner/src/passes/bloom/MultiPassBloomPass'
@@ -24,7 +24,6 @@ const SETTINGS = {
   useComposer: false
 }
 
-const CLOUD_SIZE = 100
 const WIDTH = 500
 const HEIGHT = 500
 
@@ -37,18 +36,32 @@ function initSystem() {
       FastAgent: FastAgent,
       Walker: Walker
     };
-    this.add('World', {
-      data: {
-        size: CLOUD_SIZE
-      },
+    const world = this.add('World', {
       width: WIDTH,
       height: HEIGHT,
-      gravity: new Flora.Vector(0, -1),
-      c: 0
+      FastAgent: {
+        pointSize: 5,
+        color: 0xFF0000
+      },
+      Walker: {
+        pointSize: 3,
+        color: 0x0000FF
+      }
     })
 
-    for (var i = 0; i < 1000; i ++) {
-      this.add('Walker');
+    for (var i = 0; i < 500; i ++) {
+      this.add('Walker', {
+        location: new Flora.Vector(world.width * 0.9, world.height * 0.5),
+        maxSpeed: 0.01,
+        remainsOnScreen: true
+      });
+    }
+
+    for (var i = 0; i < 500; i ++) {
+      this.add('FastAgent', {
+        location: new Flora.Vector(world.width * 0.1, world.height * 0.5),
+        seekTarget: world.walkers[i]
+      });
     }
 
     // this.add('FastAgent');
@@ -76,8 +89,16 @@ function init() {
 
   /* Main scene and camera */
   scene = new Scene()
-  camera = new PerspectiveCamera(50, resize.width / resize.height, 0.1, 1000)
-  controls = new OrbitControls(camera, {element: renderer.domElement, parent: renderer.domElement, distance: 100, phi: Math.PI * 0.5})
+  camera = new OrthographicCamera(WIDTH / - 2, WIDTH / 2, HEIGHT / 2, HEIGHT / - 2, 1, 1000)
+  camera.position.set( WIDTH / 2, HEIGHT / 2, 100 );
+  controls = new OrbitControls(camera, {
+    element: renderer.domElement,
+    parent: renderer.domElement,
+    distance: 500,
+    enableRotate: false,
+    enableZoom: true,
+    target: new Vector3(WIDTH / 2, HEIGHT / 2, 0)
+  })
 
   /* Lights */
   const frontLight = new PointLight(0xFFFFFF, 1)
@@ -88,13 +109,9 @@ function init() {
   backLight.position.x = -20
 
   /* Actual content of the scene */
-  // const { cloud, geometry } = createPointCloud({ numPoints: 100, size: CLOUD_SIZE })
-  const cloud = System.firstWorld().cloud;
-  if (cloud) {
-    cloud.verticesNeedUpdate = true
-    console.log('cloud', cloud);
-    scene.add(cloud)
-  }
+  const clouds = System.firstWorld().clouds;
+  scene.add(clouds.Walker);
+  scene.add(clouds.FastAgent);
 
   /* Various event listeners */
   resize.addListener(onResize)
@@ -112,42 +129,20 @@ init();
 
 /* -------------------------------------------------------------------------------- */
 
-
-function updatePointPositions(i) {
-  const geometry = System.firstWorld().geometry
-  const { vertices } = geometry;
-
-  vertices.forEach((v, j) => {
-
-    const n = noise[(i + j) % 10000]
-    const n2 = noise[(i + j + 5000) % 10000]
-
-    const DIR = j % 2 === 1 ? -1 : 1
-    v.setX(-(CLOUD_SIZE / 2) + (n * CLOUD_SIZE))
-    v.setY(-(CLOUD_SIZE / 2) + (n2 * CLOUD_SIZE))
-  })
-
-  geometry.verticesNeedUpdate = true
-}
 /**
   Resize canvas
 */
 function onResize () {
-  camera.aspect = resize.width / resize.height
+  camera.aspect = WIDTH / HEIGHT
   camera.updateProjectionMatrix()
-  renderer.setSize(resize.width, resize.height)
-  composer.setSize(resize.width, resize.height)
+  renderer.setSize(WIDTH, HEIGHT)
+  composer.setSize(WIDTH, HEIGHT)
 }
 
 /**
   Render loop
 */
-let i = 0
 function render(dt) {
   controls.update()
-  // updatePointPositions(i % 10000);
-  i++
-
   renderer.render(scene, camera)
-
 }

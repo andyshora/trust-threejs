@@ -27,10 +27,6 @@ Utils.extend(Mover, Item);
  * @param  {Object} world An instance of World.
  * @param  {Object} opt_options A map of initial properties.
  * @param {string|Array} [opt_options.color = 255, 255, 255] Color.
- * @param {number} [opt_options.borderRadius = 100] Border radius.
- * @param {number} [opt_options.borderWidth = 2] Border width.
- * @param {string} [opt_options.borderStyle = 'solid'] Border style.
- * @param {Array} [opt_options.borderColor = 60, 60, 60] Border color.
  * @param {boolean} [opt_options.pointToDirection = true] If true, object will point in the direction it's moving.
  * @param {boolean} [opt_options.draggable = false] If true, object can move via drag and drop.
  * @param {Object} [opt_options.parent = null] A parent object. If set, object will be fixed to the parent relative to an offset distance.
@@ -48,10 +44,6 @@ Mover.prototype.init = function(world, opt_options) {
   var options = opt_options || {};
 
   this.color = options.color || [255, 255, 255];
-  this.borderRadius = options.borderRadius || 0;
-  this.borderWidth = options.borderWidth || 0;
-  this.borderStyle = options.borderStyle || 'none';
-  this.borderColor = options.borderColor || [0, 0, 0];
   this.pointToDirection = typeof options.pointToDirection === 'undefined' ? true : options.pointToDirection;
   this.draggable = !!options.draggable;
   this.parent = options.parent || null;
@@ -284,36 +276,5 @@ Mover.prototype.step = function() {
 
   this.afterStep.call(this);
 };
-
-/**
- * Updates the corresponding DOM element's style property.
- * @function draw
- * @memberof Mover
- */
-Mover.prototype.draw = function() {
-  const data = {
-    x: this.location.x - (this.width / 2),
-    y: this.location.y - (this.height / 2),
-    angle: this.angle,
-    scale: this.scale || 1,
-    width: this.width,
-    height: this.height,
-    colorMode: this.colorMode,
-    color0: this.color[0],
-    color1: this.color[1],
-    color2: this.color[2],
-    opacity: this.opacity,
-    zIndex: this.zIndex,
-    visibility: this.visibility,
-    borderRadius: this.borderRadius,
-    borderWidth: this.borderWidth,
-    borderStyle: this.borderStyle,
-    borderColor0: this.borderColor[0],
-    borderColor1: this.borderColor[1],
-    borderColor2: this.borderColor[2]
-  };
-  this.data = data;
-};
-
 
 module.exports = Mover;

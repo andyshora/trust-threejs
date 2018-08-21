@@ -91,7 +91,7 @@ System.setup = function(opt_func) {
 
   var func = opt_func || function() {}, i, l, max;
 
-  document.body.onorientationchange = System.updateOrientation;
+  // document.body.onorientationchange = System.updateOrientation;
 
   // save the current and last mouse position
   Utils.addEvent(document, 'mousemove', System._recordMouseLoc);
@@ -247,9 +247,9 @@ System.loop = function(opt_function) {
     }
   }
   len = System._records.length; // check length in case items were removed in step()
-  for (i = len - 1; i >= 0; i -= 1) {
-    records[i].draw();
-  }
+  // for (i = len - 1; i >= 0; i -= 1) {
+    // records[i].draw();
+  // }
   System.clock++;
   if (FPSDisplay.active) {
     FPSDisplay.update(len);
@@ -430,15 +430,19 @@ System._keyup = function(e) {
 
   switch(e.keyCode) {
     case 39:
+      // right arrow
+      console.log('step')
       System._stepForward();
       break;
     case 80: // p; pause/play
+      console.log('pause/play')
       for (i = 0, max = worlds.length; i < max; i++) {
         world = worlds[i];
         world.pauseStep = !world.pauseStep;
       }
       break;
     case 82: // r; reset
+      console.log('reset')
       System._resetSystem();
       break;
     case 83: // s; reset
