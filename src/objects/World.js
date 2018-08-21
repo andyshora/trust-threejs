@@ -1,6 +1,9 @@
 var Vector = require('vector2d-lib'),
     Item = require('./Item'),
+    FastAgent = require('./FastAgent'),
     Utils = require('drawing-utils-lib');
+
+import { Vector3 } from 'three'
 
 var createPointCloud = require('../utils/objects').createPointCloud;
 
@@ -11,9 +14,6 @@ var createPointCloud = require('../utils/objects').createPointCloud;
  * @constructor
  */
 function World(opt_options) {
-
-  console.log('NEW WORLD', opt_options);
-
   Item.call(this);
 
   var options = opt_options || {};
@@ -22,10 +22,9 @@ function World(opt_options) {
   this.name = 'World';
 
   if (options.data) {
-    const { cloud, geometry } = createPointCloud({ numPoints: options.data.numPoints, size: options.data.size })
+    const { cloud, geometry } = createPointCloud({ numPoints: 0, size: options.data.size, pointSize: 0.5 })
     this.cloud = cloud;
     this.geometry = geometry;
-    console.log(this.cloud, this.geometry);
   }
 
   /**
@@ -49,7 +48,7 @@ Utils.extend(World, Item);
  */
 World.prototype.init = function(world, opt_options) {
 
-  console.log('World.init');
+  console.log('World.init', opt_options);
 
   World._superClass.init.call(this, this.world, opt_options);
 
@@ -58,7 +57,7 @@ World.prototype.init = function(world, opt_options) {
   this.color = options.color || [0, 0, 0];
   this.width = options.width || this.el.scrollWidth;
   this.height = options.height || this.el.scrollHeight;
-  this.location = options.location || new Vector(document.body.scrollWidth / 2, document.body.scrollHeight / 2);
+  this.location = options.location || new Vector(0, 0);
   this.borderWidth = options.borderWidth || 0;
   this.borderStyle = options.borderStyle || 'none';
   this.borderColor = options.borderColor || [0, 0, 0];
@@ -68,6 +67,7 @@ World.prototype.init = function(world, opt_options) {
   this.pauseDraw = !!options.pauseDraw;
   this.el.className = this.name.toLowerCase();
   this._camera = this._camera || new Vector();
+  this.fastAgents = [];
 };
 
 /**
@@ -75,8 +75,14 @@ World.prototype.init = function(world, opt_options) {
  * @param {Object} item An instance of item.
  */
 World.prototype.add = function(item) {
-  console.log('World.add', item);
-  // this.pointCloud.geometry.vertices.push()
+  console.log('World.add', item, item.location.x, item.location.y);
+  this.fastAgents.push(item);
+
+  // add a vertex to the cloud to represent FastAgent's position
+  this.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
+
+  console.log('updated cloud', this.cloud);
+
   // this.el.appendChild(item);
   // todo - add item to point cloud
 };
@@ -98,6 +104,13 @@ World.prototype.addVertex = function(item) {
  * @memberof World
  */
 World.prototype.step = function() {
+  // update position of all vertices
+  for (let i = 0; i < this.fastAgents.length; i++) {
+    const v = this.geometry.vertices[i]
+    v.setX(this.fastAgents[i].location.x / 10)
+    v.setY(this.fastAgents[i].location.y / 10)
+  }
+  this.geometry.verticesNeedUpdate = true;
   this.location.add(this._camera);
 };
 
@@ -124,19 +137,7 @@ World.prototype.draw = function() {
     borderColor3: this.borderColor[2]
   };
 
-  // todo - draw
-};
-
-/**
- * Concatenates a new cssText string.
- *
- * @function getCSSText
- * @memberof World
- * @param {Object} props A map of object properties.
- * @returns {string} A string representing cssText.
- */
-World.prototype.getCSSText = function(props) {
-  return Item._stylePosition.replace(/<x>/g, props.x).replace(/<y>/g, props.y).replace(/<angle>/g, props.angle).replace(/<scale>/g, props.scale) + 'width: ' + props.width + 'px; height: ' + props.height + 'px; background-color: rgb(' + props.color0 + ', ' + props.color1 + ', ' + props.color2 + '); border: ' + props.borderWidth + 'px ' + props.borderStyle + ' rgb(' + props.borderColor1 + ', ' + props.borderColor2 + ', ' + props.borderColor3 + ')';
+  this.data = data;
 };
 
 module.exports = World;

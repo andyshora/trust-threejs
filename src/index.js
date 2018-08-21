@@ -12,12 +12,12 @@ import noise from './noise/10000.json'
 import Flora from 'florajs';
 
 import Item from './objects/Item';
+import FastAgent from './objects/FastAgent';
+import Walker from './objects/Walker';
 import Mover from './objects/Mover';
 import System from './objects/System';
 import World from './objects/World';
 
-System.Classes.Mover = Mover;
-System.Classes.Item = Item;
 
 /* Custom settings */
 const SETTINGS = {
@@ -25,25 +25,33 @@ const SETTINGS = {
 }
 
 const CLOUD_SIZE = 100
+const WIDTH = 500
+const HEIGHT = 500
 
 let scene, camera, controls, engine, renderer, composer, world
 
 function initSystem() {
   System.setup(function() {
-    // world = new World({
-      // data: {
-      //   size: CLOUD_SIZE,
-      //   numPoints: 100
-      // }
-    // });
-    // this._addWorld(world);
+    System.Classes = {
+      Item: Item,
+      FastAgent: FastAgent,
+      Walker: Walker
+    };
     this.add('World', {
       data: {
-        size: CLOUD_SIZE,
-        numPoints: 100
-      }
+        size: CLOUD_SIZE
+      },
+      width: WIDTH,
+      height: HEIGHT,
+      gravity: new Flora.Vector(0, -1),
+      c: 0
     })
-    this.add('FastAgent');
+
+    for (var i = 0; i < 1000; i ++) {
+      this.add('Walker');
+    }
+
+    // this.add('FastAgent');
     this._toggleFPS();
   });
   System.loop();
@@ -83,6 +91,8 @@ function init() {
   // const { cloud, geometry } = createPointCloud({ numPoints: 100, size: CLOUD_SIZE })
   const cloud = System.firstWorld().cloud;
   if (cloud) {
+    cloud.verticesNeedUpdate = true
+    console.log('cloud', cloud);
     scene.add(cloud)
   }
 

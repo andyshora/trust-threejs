@@ -1,7 +1,10 @@
-var Mover = require('./mover'),
-  System = require('./System'),
-  Utils = require('burner').Utils,
-  Vector = require('burner').Vector;
+import {
+  Utils,
+  Vector
+} from 'burner';
+
+import Mover from './Mover';
+import System from './System';
 
 /**
  * Creates a new FastAgent.

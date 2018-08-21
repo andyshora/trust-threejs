@@ -1,7 +1,10 @@
-var Item = require('./Item'),
-    System = require('./System'),
-    Utils = require('burner').Utils,
-    Vector = require('burner').Vector;
+import {
+  Utils,
+  Vector
+} from 'burner';
+
+import Item from './Item';
+import System from './System';
 
 /**
  * Creates a new Mover.
@@ -15,7 +18,6 @@ var Item = require('./Item'),
  * @extends Item
  */
 function Mover(opt_options) {
-  console.log('NEW MOVER');
   Item.call(this);
 }
 Utils.extend(Mover, Item);
@@ -177,7 +179,6 @@ Mover.mouseout = function() {
 };
 
 Mover.prototype.step = function() {
-
   var i, max, x = this.location.x,
       y = this.location.y;
 
@@ -290,7 +291,7 @@ Mover.prototype.step = function() {
  * @memberof Mover
  */
 Mover.prototype.draw = function() {
-  var cssText = this.getCSSText({
+  const data = {
     x: this.location.x - (this.width / 2),
     y: this.location.y - (this.height / 2),
     angle: this.angle,
@@ -310,24 +311,9 @@ Mover.prototype.draw = function() {
     borderColor0: this.borderColor[0],
     borderColor1: this.borderColor[1],
     borderColor2: this.borderColor[2]
-  });
-  this.el.style.cssText = cssText;
+  };
+  this.data = data;
 };
 
-/**
- * Concatenates a new cssText string.
- *
- * @function getCSSText
- * @memberof Mover
- * @param {Object} props A map of object properties.
- * @returns {string} A string representing cssText.
- */
-Mover.prototype.getCSSText = function(props) {
-  return Item._stylePosition.replace(/<x>/g, props.x).replace(/<y>/g, props.y).replace(/<angle>/g, props.angle).replace(/<scale>/g, props.scale) + 'width: ' +
-      props.width + 'px; height: ' + props.height + 'px; background-color: ' +
-      props.colorMode + '(' + props.color0 + ', ' + props.color1 + (props.colorMode === 'hsl' ? '%' : '') + ', ' + props.color2 + (props.colorMode === 'hsl' ? '%' : '') +');  opacity: ' + props.opacity + '; z-index: ' + props.zIndex + '; visibility: ' + props.visibility + '; border: ' +
-      props.borderWidth + 'px ' + props.borderStyle + ' ' + props.colorMode + '(' + props.borderColor0 + ', ' + props.borderColor1 + (props.colorMode === 'hsl' ? '%' : '') + ', ' + props.borderColor2 + (props.colorMode === 'hsl' ? '%' : '') + '); border-radius: ' +
-      props.borderRadius + '%;';
-};
 
 module.exports = Mover;

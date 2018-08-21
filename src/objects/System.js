@@ -1,13 +1,15 @@
 /*global window, document */
 /*jshint supernew:true */
 
-var Item = require('./Item'),
-    Mover = require('./Mover'),
-    World = require('./World'),
-    FastAgent = require('./FastAgent'),
-    Vector = require('vector2d-lib'),
+var Vector = require('vector2d-lib'),
     Utils = require('drawing-utils-lib'),
     FPSDisplay = require('fpsdisplay');
+
+import Item from './Item';
+import Mover from './Mover';
+import FastAgent from './FastAgent';
+import Agent from './Agent';
+import World from './World';
 
 if (typeof window !== 'undefined') {
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
@@ -24,10 +26,7 @@ var System = {
  * @memberof System
  */
 System.Classes = {
-  'Item': Item,
-  'Mover': Mover,
-  'FastAgent': FastAgent,
-  'World': World
+  Item: Item
 };
 
 /**
@@ -145,7 +144,6 @@ System._addWorld = function(world) {
  * @returns {Object} An instance of the added item.
  */
 System.add = function(opt_klass, opt_options, opt_world) {
-  console.log('System.add', opt_klass);
   var klass = opt_klass || 'Item',
       options = opt_options || {},
       world = opt_world || System.firstWorld(),
@@ -158,7 +156,6 @@ System.add = function(opt_klass, opt_options, opt_world) {
       break;
     }
   }
-
   if (!obj) {
     if (klass.toLowerCase() === 'world') {
       obj = new World(options);
@@ -228,7 +225,6 @@ System.destroy = function (obj) {
  * @memberof System
  */
 System.loop = function(opt_function) {
-
   var i, records = System._records,
       len = System._records.length,
       frameFunction = opt_function || function() {};
@@ -363,7 +359,6 @@ System.allWorlds = function() {
  * @returns {Array} An array of items.
  */
 System.getAllItemsByName = function(name, opt_list) {
-
   var i, max, arr = [],
       list = opt_list || this._records;
 

@@ -137,7 +137,7 @@ Item.prototype.init = function(world, opt_options) {
   this.id = this.name + Item._idCount;
 
   if (!this.el) {
-    this.world.add(this.el);
+    this.world.add(this);
     this.el = 1;
   }
 };
@@ -278,7 +278,7 @@ Item.prototype.draw = function() {
     visibility: this.visibility
   }
 
-  // todo - update vertex position
+  this.data = data;
 };
 
 module.exports = Item;
