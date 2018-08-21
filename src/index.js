@@ -24,8 +24,11 @@ const SETTINGS = {
   useComposer: false
 }
 
-const WIDTH = 500
-const HEIGHT = 500
+let WIDTH = resize.width
+let HEIGHT = resize.height
+
+const NUM_AGENTS = 50
+const NUM_WALKERS = 200
 
 let scene, camera, controls, engine, renderer, composer, world
 
@@ -40,28 +43,67 @@ function initSystem() {
       width: WIDTH,
       height: HEIGHT,
       FastAgent: {
-        pointSize: 5,
-        color: 0xFF0000
+        pointSize: 15,
+        color: 0xFF00FF
       },
       Walker: {
-        pointSize: 3,
-        color: 0x0000FF
+        pointSize: 8,
+        color: 0x00FFFF
       }
     })
 
-    for (var i = 0; i < 500; i ++) {
+    for (var i = 0; i < NUM_WALKERS; i ++) {
       this.add('Walker', {
         location: new Flora.Vector(world.width * 0.9, world.height * 0.5),
         maxSpeed: 0.01,
-        remainsOnScreen: true
+        remainsOnScreen: true,
+        perlinSpeed: 0.002
       });
     }
 
-    for (var i = 0; i < 500; i ++) {
+    for (var i = 0; i < NUM_AGENTS; i ++) {
       this.add('FastAgent', {
         location: new Flora.Vector(world.width * 0.1, world.height * 0.5),
-        seekTarget: world.walkers[i]
+        seekTarget: world.walkers[i],
+        flocking: true,
+        cohesionStrength: 1,
+        separateStrength: 0.3
       });
+    }
+
+    this.frameFunction = function() {
+      const fastAgents = world.fastAgents;
+      const walkers = world.walkers;
+      const freeWalkers = walkers.filter(w => !w.isStatic)
+
+      const setNewTarget = agent => {
+        if (freeWalkers.length) {
+          agent.seekTarget = freeWalkers.shift()
+        } else {
+          // agent.seekTarget = null;
+          // agent.isStatic = true
+          // agent.opacity = 0.5
+        }
+      }
+
+
+
+      // check if there are any walkers inside agents
+      walkers.forEach(w => {
+        if (!w.isStatic) {
+          fastAgents.forEach(a => {
+            const inside = Flora.Utils.isInside(w, a);
+            if (inside) {
+              w.isStatic = true
+              w.opacity = 0.5
+            }
+            // set a new target for agent
+            if (a.seekTarget.isStatic) {
+              setNewTarget(a);
+            }
+          })
+        }
+      })
     }
 
     // this.add('FastAgent');
@@ -77,7 +119,7 @@ function init() {
   /* Init renderer and canvas */
   const container = document.body
   renderer = new WebGLRenderer({ antialias: true })
-  renderer.setClearColor(0xffffff)
+  renderer.setClearColor(0x000000)
   container.style.overflow = 'hidden'
   container.style.margin = 0
   container.appendChild(renderer.domElement)
@@ -133,6 +175,8 @@ init();
   Resize canvas
 */
 function onResize () {
+  WIDTH = resize.width
+  HEIGHT = resize.height
   camera.aspect = WIDTH / HEIGHT
   camera.updateProjectionMatrix()
   renderer.setSize(WIDTH, HEIGHT)

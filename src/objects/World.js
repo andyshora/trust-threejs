@@ -3,7 +3,10 @@ var Vector = require('vector2d-lib'),
     FastAgent = require('./FastAgent'),
     Utils = require('drawing-utils-lib');
 
-import { Vector3 } from 'three'
+import {
+  Color,
+  Vector3
+} from 'three'
 
 var createPointCloud = require('../utils/objects').createPointCloud;
 
@@ -85,11 +88,13 @@ World.prototype.add = function(item) {
       this.walkers.push(item);
       // add a vertex to the cloud to represent Walker's position
       this.clouds.Walker.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
+      this.clouds.Walker.geometry.colors.push(new Color(0x0000FF));
       break;
     case 'FastAgent':
       this.fastAgents.push(item);
       // add a vertex to the cloud to represent FastAgent's position
       this.clouds.FastAgent.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
+      this.clouds.FastAgent.geometry.colors.push(new Color(0x00FFFF));
       break;
     default:
       break;
@@ -107,12 +112,22 @@ World.prototype.step = function() {
     const v = this.clouds.FastAgent.geometry.vertices[i]
     v.setX(this.fastAgents[i].location.x)
     v.setY(this.fastAgents[i].location.y)
+
+    if (this.fastAgents[i].opacity < 1) {
+      this.clouds.FastAgent.geometry.colors[i] = new Color(0x111111);
+      this.clouds.FastAgent.geometry.colorsNeedUpdate = true;
+    }
   }
   // update position of all vertices
   for (let i = 0; i < this.walkers.length; i++) {
     const v = this.clouds.Walker.geometry.vertices[i]
     v.setX(this.walkers[i].location.x)
     v.setY(this.walkers[i].location.y)
+
+    if (this.walkers[i].opacity < 1) {
+      this.clouds.Walker.geometry.colors[i] = new Color(0x111111);
+      this.clouds.Walker.geometry.colorsNeedUpdate = true;
+    }
   }
   this.clouds.FastAgent.geometry.verticesNeedUpdate = true;
   this.clouds.Walker.geometry.verticesNeedUpdate = true;

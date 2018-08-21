@@ -1,14 +1,10 @@
 /*global window, document */
 /*jshint supernew:true */
-
 var Vector = require('vector2d-lib'),
     Utils = require('drawing-utils-lib'),
     FPSDisplay = require('fpsdisplay');
 
 import Item from './Item';
-import Mover from './Mover';
-import FastAgent from './FastAgent';
-import Agent from './Agent';
 import World from './World';
 
 if (typeof window !== 'undefined') {
