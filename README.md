@@ -1,9 +1,4 @@
-threejs-starter-kit
-===================
-
-My current worlflow for quick THREE.js prototypes.
-
-![screenshot](/screenshot.png)
+# Trust
 
 ## Usage
 After cloning install all node dependencies
@@ -16,30 +11,58 @@ Then launch the main task to open budo livereload server
 npm start
 ```
 
-You are good to go !
+# Hawks v Doves
 
-If you need a minified build just run
-```bash
-npm run build
-```
-Then put the `/index.html` and `/index.js` (+ any assets that you might be using) on your server.
+Notes from http://www.cs.rug.nl/~michael/teaching/gametheorysheets.pdf.
 
-## Features
-- ES6 with [Babel](http://babeljs.io)
-- [Budo](https://github.com/mattdesl/budo) (browserify local server with livereload)
-- [Glslify](https://github.com/glslify/glslify) (browserify transform for glsl)
-- My personnal [GUI](http://github.com/superguigui/guigui#dev)
-- Basic asset preloader (you probably need to extend it for your needs)
-- OrbitControls
-- Simple setup with my ideal file structure
-- Postprocessing with [my fork](https://github.com/superguigui/Wagner) of [spite's WAGNER](https://github.com/spite/Wagner)
+- Suppose two rivals of the same species meet at the location of some resource with
+value G.
+- Suppose there are two “pure” strategies:
 
-## File Structure and coding style
-I like to create "Objects" classes in `src/objects` that contain elements from my scene. They usually extend `THREE.Object3D` so that they can be added to a parent, have positions and rotations etc... I also sometime extend `THREE.Mesh` directly but it can be a bit restrictive since in that case you need to prepare all geometries and material in the constructor before the call to `super()` without being able to use `this`.
+1. Hawk: you always escalate the conflict until either the other withdraws, or you
+are badly hurt.
+2. Dove: you posture until the other withdraws, but you withdraw if the other
+escalates or seems too strong.
 
-Also i like to avoid using the `THREE` global keyword and instead I import only the Objects that I need. This is pointless but it might be useful in the tree-shaking future / alternate reality.
-```js
-import { Object3D, Mesh, MeshBasicMaterial } from THREE
-```
+- If two hawks meet, one wins G but the other loses cost C, with G < C.
+- If two doves meet, one withdraws and loses nothing, and the other wins G.
+- If a hawk meets a dove, the dove loses nothing and the hawk wins G.
 
-I try to respect the [Standard](https://standardjs.com) coding style.
+
+## The System
+
+### Resources
+
+Resources are static, and when generated are randomly positioned in the world. Both Hawks and Doves are attracted towards resources.
+
+If either meet a resource with no competition (for X ms), they take it.
+
+If either meet a resource, and another character (within X ms), they apply their strategy to decide:
+
+- Who gets the resource and gains G
+- Who loses cost C (if anyone)
+
+## Hawks
+
+Hawks are aggressive, and don't mind fighting for resources to gain G, even though they may lose and forfeit cost C, where G < C.
+
+*Note: the higher C, the more dangerous the animal is.*
+
+## Doves
+
+Doves are passive, and don't like to fight. They would rather forfeit resources to stronger opposition, and not risk losing cost C to gain resource G. They'll happily take G if there is no cost C to lose, which only happens if they face no opposition or encounter another Dove.
+
+## Payoff Matrix
+
+This describes the average payoff. In a simulation, we'd play out the battle, using the flip of a coin to decide the outcome of H v H and D v D.
+
+|            | if it meets H | if it meets D |   |   |
+|------------|---------------|---------------|---|---|
+| H receives | (G - C) / 2   | G             |   |   |
+| D receives | 0             | G / 2         |   |   |
+
+## Optimal Behaviour
+
+- If Doves dominate the population, it pays to be a Hawk. Hawks will almost always face no strong opposition and win G, whilst Doves will almost always win G / 2 when faced with opposition.
+
+- If Hawkes dominate, it pays to be a Dove. Remember than G < C, so (G - C) / 2 < 0.
