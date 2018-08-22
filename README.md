@@ -56,10 +56,10 @@ Doves are passive, and don't like to fight. They would rather forfeit resources 
 
 This describes the average payoff. In a simulation, we'd play out the battle, using the flip of a coin to decide the outcome of H v H and D v D.
 
-|            | if it meets H | if it meets D |   |   |
-|------------|---------------|---------------|---|---|
-| H receives | (G - C) / 2   | G             |   |   |
-| D receives | 0             | G / 2         |   |   |
+|            | if it meets H | if it meets D |
+|------------|---------------|---------------|
+| H receives | (G - C) / 2   | G             |
+| D receives | 0             | G / 2         |
 
 ## Optimal Behaviour
 

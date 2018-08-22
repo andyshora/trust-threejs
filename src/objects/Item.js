@@ -8,8 +8,6 @@ var Vector = require('vector2d-lib');
  * @param {string} opt_name The item's class name.
  */
 function Item() {
-  console.log('NEW ITEM');
-
   Item._idCount++;
 }
 
@@ -135,6 +133,8 @@ Item.prototype.init = function(world, opt_options) {
   this._force = this._force || new Vector();
 
   this.id = this.name + Item._idCount;
+
+  this.type = options.type;
 
   if (!this.el) {
     this.world.add(this);

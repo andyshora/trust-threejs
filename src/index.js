@@ -11,13 +11,14 @@ import noise from './noise/10000.json'
 
 import Flora from 'florajs';
 
+import Agent from './objects/Agent';
 import Item from './objects/Item';
-import FastAgent from './objects/FastAgent';
-import Walker from './objects/Walker';
 import Mover from './objects/Mover';
+import Resource from './objects/Resource';
+import Sensor from './objects/Sensor';
 import System from './objects/System';
+import Walker from './objects/Walker';
 import World from './objects/World';
-
 
 /* Custom settings */
 const SETTINGS = {
@@ -26,53 +27,98 @@ const SETTINGS = {
 
 let WIDTH = resize.width
 let HEIGHT = resize.height
+const rand = Flora.Utils.getRandomNumber;
 
-const NUM_AGENTS = 50
-const NUM_WALKERS = 200
+const NUM_AGENTS = 10
+const NUM_WALKERS = 50
+const NUM_RESOURCES = 50
 
 let scene, camera, controls, engine, renderer, composer, world
 
-function initSystem() {
+function huntersAndPrey() {
   System.setup(function() {
     System.Classes = {
+      Agent: Agent,
       Item: Item,
-      FastAgent: FastAgent,
+      Resource: Resource,
+      Sensor: Sensor,
       Walker: Walker
     };
     const world = this.add('World', {
       width: WIDTH,
       height: HEIGHT,
-      FastAgent: {
-        pointSize: 15,
+      gravity: new Flora.Vector(),
+      c: 0,
+      Agent: {
+        pointSize: 4,
         color: 0xFF00FF
       },
       Walker: {
-        pointSize: 8,
+        pointSize: 4,
         color: 0x00FFFF
+      },
+      Resource: {
+        pointSize: 4,
+        color: 0xFFFFFF
       }
     })
 
+    for (var i = 0; i < NUM_RESOURCES; i ++) {
+      const location = new Flora.Vector(rand(world.width * 0.45, world.width * 0.55), rand(world.height * 0.45, world.height * 0.55));
+      this.add('Resource', {
+        type: 'Food',
+        location,
+        isStatic: true
+      });
+    }
+
+
+
     for (var i = 0; i < NUM_WALKERS; i ++) {
       this.add('Walker', {
-        location: new Flora.Vector(world.width * 0.9, world.height * 0.5),
+        type: 'Dove',
+        location: new Flora.Vector(world.width * 0.6, world.height * 0.9),
         maxSpeed: 0.01,
-        remainsOnScreen: true,
-        perlinSpeed: 0.002
+        // remainsOnScreen: true,
+        perlinSpeed: 0.001,
+        motorSpeed: 2,
+        minSpeed: 1,
+        maxSpeed: 4,
+        sensors: [
+          this.add('Sensor', {
+            type: 'Food',
+            targetClass: 'Resource',
+            sensitivity: 1000,
+            behavior: 'LOVES'
+          })
+        ]
       });
     }
 
     for (var i = 0; i < NUM_AGENTS; i ++) {
-      this.add('FastAgent', {
+      this.add('Walker', {
+        type: 'Hawk',
         location: new Flora.Vector(world.width * 0.1, world.height * 0.5),
-        seekTarget: world.walkers[i],
-        flocking: true,
-        cohesionStrength: 1,
-        separateStrength: 0.3
+        // seekTarget: world.walkers[i],
+        motorSpeed: 2,
+        minSpeed: 1,
+        maxSpeed: 6,
+        // flocking: true,
+        sensors: [
+          this.add('Sensor', {
+            type: 'Food',
+            targetClass: 'Resource',
+            sensitivity: 1000,
+            behavior: 'LOVES'
+          })
+        ]
       });
     }
 
     this.frameFunction = function() {
-      const fastAgents = world.fastAgents;
+
+      return;
+      const agents = world.agents;
       const walkers = world.walkers;
       const freeWalkers = walkers.filter(w => !w.isStatic)
 
@@ -86,19 +132,17 @@ function initSystem() {
         }
       }
 
-
-
       // check if there are any walkers inside agents
       walkers.forEach(w => {
         if (!w.isStatic) {
-          fastAgents.forEach(a => {
+          agents.forEach(a => {
             const inside = Flora.Utils.isInside(w, a);
             if (inside) {
               w.isStatic = true
               w.opacity = 0.5
             }
             // set a new target for agent
-            if (a.seekTarget.isStatic) {
+            if (a.seekTarget && a.seekTarget.isStatic) {
               setNewTarget(a);
             }
           })
@@ -106,10 +150,16 @@ function initSystem() {
       })
     }
 
-    // this.add('FastAgent');
+    // this.add('Agent');
     this._toggleFPS();
   });
   System.loop();
+}
+
+function initSystem() {
+
+  huntersAndPrey()
+
 }
 
 function init() {
@@ -152,8 +202,9 @@ function init() {
 
   /* Actual content of the scene */
   const clouds = System.firstWorld().clouds;
+  scene.add(clouds.Resource);
   scene.add(clouds.Walker);
-  scene.add(clouds.FastAgent);
+  scene.add(clouds.Agent);
 
   /* Various event listeners */
   resize.addListener(onResize)

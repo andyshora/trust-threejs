@@ -38,7 +38,6 @@ Utils.extend(Mover, Item);
  * @param {Object} [opt_options.parent = null] Attach to another Flora object.
  */
 Mover.prototype.init = function(world, opt_options) {
-  console.log('Mover.init');
   Mover._superClass.init.call(this, world, opt_options);
 
   var options = opt_options || {};

@@ -378,23 +378,11 @@ System.getAllItemsByName = function(name, opt_list) {
  * @returns {Array} An array of items.
  */
 System.getAllItemsByAttribute = function(attr, opt_val, opt_name) { // TODO: add test
-
-  var i, max, arr = [], records = this._records,
-      val = typeof opt_val !== 'undefined' ? opt_val : null,
-      name = opt_name || false;
-
-  for (i = 0, max = records.length; i < max; i++) {
-    if (typeof records[i][attr] !== 'undefined') {
-      if (val !== null && records[i][attr] !== val) {
-        continue;
-      }
-      if (name && records[i].name !== name) {
-        continue;
-      }
-      arr[arr.length] = records[i];
-    }
-  }
-  return arr;
+  // console.log(attr, opt_val);
+  const matches = opt_name
+    ? this._records.filter(r => r.type === opt_val && r.name === opt_name)
+    : this._records.filter(r => r.type === opt_val);
+  return matches;
 };
 
 /**

@@ -7,19 +7,19 @@ import Mover from './Mover';
 import System from './System';
 
 /**
- * Creates a new FastAgent.
+ * Creates a new Agent.
  *
- * FastAgents are basic Flora elements that respond to forces like gravity, attraction,
- * repulsion, etc. They can also chase after other FastAgents, organize with other FastAgents
+ * Agents are basic Flora elements that respond to forces like gravity, attraction,
+ * repulsion, etc. They can also chase after other Agents, organize with other Agents
  * in a flocking behavior, and steer away from obstacles. They can also follow the mouse.
  *
  * @constructor
  * @extends Mover
  */
-function FastAgent(opt_options) {
+function Agent(opt_options) {
   Mover.call(this);
 }
-Utils.extend(FastAgent, Mover);
+Utils.extend(Agent, Mover);
 
 /**
  * Initializes an instance.
@@ -37,19 +37,13 @@ Utils.extend(FastAgent, Mover);
  * @param {Array} [opt_options.sensors = ] A list of sensors attached to this object.
  * @param {number} [opt_options.motorSpeed = 2] Motor speed
  * @param {Array} [opt_options.color = 197, 177, 115] Color.
- * @param {number} [opt_options.borderWidth = 0] Border width.
- * @param {string} [opt_options.borderStyle = 'none'] Border style.
- * @param {string|Array} [opt_options.borderColor = 'transparent'] Border color.
- * @param {number} [opt_options.borderRadius = 0] Border radius.
  */
-FastAgent.prototype.init = function(world, opt_options) {
-  FastAgent._superClass.init.call(this, world, opt_options);
-
-  console.log('FastAgent.init');
+Agent.prototype.init = function(world, opt_options) {
+  Agent._superClass.init.call(this, world, opt_options);
 
   var options = opt_options || {};
 
-  this.name = options.type || 'FastAgent';
+  this.name = options.type || 'Agent';
   this.followMouse = !!options.followMouse;
   this.maxSteeringForce = typeof options.maxSteeringForce === 'undefined' ? 5 : options.maxSteeringForce;
   this.seekTarget = options.seekTarget || null;
@@ -63,20 +57,14 @@ FastAgent.prototype.init = function(world, opt_options) {
   this.motorSpeed = options.motorSpeed || 0;
 
   this.color = options.color || [197, 177, 115];
-  this.borderWidth = options.borderWidth || 0;
-  this.borderStyle = options.borderStyle || 'none';
-  this.borderColor = options.borderColor || [255, 255, 255];
-  this.borderRadius = options.borderRadius || this.sensors.length ? 100 : 0;
   this.desiredSeparation = typeof options.desiredSeparation === 'undefined' ? this.width * 2 : options.desiredSeparation;
 
-  //
-
-  this.separateSumForceVector = new Vector(); // used in FastAgent.separate()
-  this.alignSumForceVector = new Vector(); // used in FastAgent.align()
-  this.cohesionSumForceVector = new Vector(); // used in FastAgent.cohesion()
-  this.followTargetVector = new Vector(); // used in FastAgent.applyAdditionalForces()
-  this.followDesiredVelocity = new Vector(); // used in FastAgent.follow()
-  this.motorDir = new Vector(); // used in FastAgent.applyAdditionalForces()
+  this.separateSumForceVector = new Vector(); // used in Agent.separate()
+  this.alignSumForceVector = new Vector(); // used in Agent.align()
+  this.cohesionSumForceVector = new Vector(); // used in Agent.cohesion()
+  this.followTargetVector = new Vector(); // used in Agent.applyAdditionalForces()
+  this.followDesiredVelocity = new Vector(); // used in Agent.follow()
+  this.motorDir = new Vector(); // used in Agent.applyAdditionalForces()
 
   if (!this.velocity.mag()) {
     this.velocity.x = 1; // angle = 0;
@@ -93,11 +81,11 @@ FastAgent.prototype.init = function(world, opt_options) {
 };
 
 /**
- * Applies FastAgent-specific forces.
+ * Applies Agent-specific forces.
  *
  * @returns {Object} This object's acceleration vector.
  */
-FastAgent.prototype.applyAdditionalForces = function() {
+Agent.prototype.applyAdditionalForces = function() {
 
   var i, max, sensorActivated, sensor, r, theta, x, y;
 
@@ -198,7 +186,7 @@ FastAgent.prototype.applyAdditionalForces = function() {
  * @returns {Object} The force to apply.
  * @private
  */
-FastAgent.prototype._seek = function(target) {
+Agent.prototype._seek = function(target) {
 
   var world = this.world,
     desiredVelocity = Vector.VectorSub(target.location, this.location),
@@ -221,12 +209,12 @@ FastAgent.prototype._seek = function(target) {
 
 /**
  * Calculates a steering force to apply to an object following another object.
- * FastAgents with flow fields will use this method to calculate a steering force.
+ * Agents with flow fields will use this method to calculate a steering force.
  *
  * @param {Object} target The object to follow.
  * @returns {Object} The force to apply.
  */
-FastAgent.prototype._follow = function(target) {
+Agent.prototype._follow = function(target) {
 
   this.followDesiredVelocity.x = target.location.x;
   this.followDesiredVelocity.y = target.location.y;
@@ -243,7 +231,7 @@ FastAgent.prototype._follow = function(target) {
  *
  * @returns {Object} This object's acceleration vector.
  */
-FastAgent.prototype._flock = function(items) {
+Agent.prototype._flock = function(items) {
   this.applyForce(this._separate(items).mult(this.separateStrength));
   this.applyForce(this._align(items).mult(this.alignStrength));
   this.applyForce(this._cohesion(items).mult(this.cohesionStrength));
@@ -257,7 +245,7 @@ FastAgent.prototype._flock = function(items) {
  * @param {array} items An array of Flora items.
  * @returns {Object} A force to apply.
  */
-FastAgent.prototype._separate = function(items) {
+Agent.prototype._separate = function(items) {
 
   var i, max, item, diff, d,
   sum, count = 0, steer;
@@ -299,7 +287,7 @@ FastAgent.prototype._separate = function(items) {
  * @param {array} items An array of Flora items.
  * @returns {Object} A force to apply.
  */
-FastAgent.prototype._align = function(items) {
+Agent.prototype._align = function(items) {
 
   var i, max, item, d,
     neighbordist = this.width * 2,
@@ -339,7 +327,7 @@ FastAgent.prototype._align = function(items) {
  * @param {array} items An array of Flora items.
  * @returns {Object} A force to apply.
  */
-FastAgent.prototype._cohesion = function(items) {
+Agent.prototype._cohesion = function(items) {
 
   var i, max, item, d,
     neighbordist = 10,
@@ -373,4 +361,4 @@ FastAgent.prototype._cohesion = function(items) {
   return new Vector();
 };
 
-module.exports = FastAgent;
+module.exports = Agent;

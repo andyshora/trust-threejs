@@ -1,6 +1,6 @@
 var Vector = require('vector2d-lib'),
     Item = require('./Item'),
-    FastAgent = require('./FastAgent'),
+    Agent = require('./Agent'),
     Utils = require('drawing-utils-lib');
 
 import {
@@ -24,12 +24,10 @@ function World(opt_options) {
   this.el = options.el || document.body;
   this.name = 'World';
 
-  const agentCloud = createPointCloud({ pointSize: options.Walker.pointSize, color: options.Walker.color })
-  const walkerCloud = createPointCloud({ pointSize: options.FastAgent.pointSize, color: options.FastAgent.color })
-
   this.clouds = {
-    FastAgent: agentCloud,
-    Walker: walkerCloud
+    Agent: createPointCloud({ pointSize: options.Agent.pointSize, color: options.Agent.color }),
+    Walker: createPointCloud({ pointSize: options.Walker.pointSize, color: options.Walker.color }),
+    Resource: createPointCloud({ pointSize: options.Resource.pointSize, color: options.Resource.color })
   };
 
 
@@ -54,8 +52,6 @@ Utils.extend(World, Item);
  */
 World.prototype.init = function(world, opt_options) {
 
-  console.log('World.init', opt_options);
-
   World._superClass.init.call(this, this.world, opt_options);
 
   var options = opt_options || {};
@@ -72,7 +68,8 @@ World.prototype.init = function(world, opt_options) {
   this.pauseStep = !!options.pauseStep;
   this.pauseDraw = !!options.pauseDraw;
   this._camera = this._camera || new Vector();
-  this.fastAgents = [];
+  this.agents = [];
+  this.resources = [];
   this.walkers = [];
 };
 
@@ -81,20 +78,24 @@ World.prototype.init = function(world, opt_options) {
  * @param {Object} item An instance of item.
  */
 World.prototype.add = function(item) {
-  console.log('World.add', item);
-
-  switch (item.name) {
-    case 'Walker':
+  switch (item.type) {
+    case 'Dove':
       this.walkers.push(item);
       // add a vertex to the cloud to represent Walker's position
       this.clouds.Walker.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
-      this.clouds.Walker.geometry.colors.push(new Color(0x0000FF));
+      this.clouds.Walker.geometry.colors.push(new Color(0x00FF33));
       break;
-    case 'FastAgent':
-      this.fastAgents.push(item);
-      // add a vertex to the cloud to represent FastAgent's position
-      this.clouds.FastAgent.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
-      this.clouds.FastAgent.geometry.colors.push(new Color(0x00FFFF));
+    case 'Food':
+      this.resources.push(item);
+      // add a vertex to the cloud to represent Walker's position
+      this.clouds.Resource.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
+      this.clouds.Resource.geometry.colors.push(new Color(0xFFFFFF));
+      break;
+    case 'Hawk':
+      this.agents.push(item);
+      // add a vertex to the cloud to represent Agent's position
+      this.clouds.Agent.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
+      this.clouds.Agent.geometry.colors.push(new Color(0x00FFFF));
       break;
     default:
       break;
@@ -108,14 +109,14 @@ World.prototype.add = function(item) {
  */
 World.prototype.step = function() {
   // update position of all vertices
-  for (let i = 0; i < this.fastAgents.length; i++) {
-    const v = this.clouds.FastAgent.geometry.vertices[i]
-    v.setX(this.fastAgents[i].location.x)
-    v.setY(this.fastAgents[i].location.y)
+  for (let i = 0; i < this.agents.length; i++) {
+    const v = this.clouds.Agent.geometry.vertices[i]
+    v.setX(this.agents[i].location.x)
+    v.setY(this.agents[i].location.y)
 
-    if (this.fastAgents[i].opacity < 1) {
-      this.clouds.FastAgent.geometry.colors[i] = new Color(0x111111);
-      this.clouds.FastAgent.geometry.colorsNeedUpdate = true;
+    if (this.agents[i].opacity < 1) {
+      this.clouds.Agent.geometry.colors[i] = new Color(0xFF1111);
+      this.clouds.Agent.geometry.colorsNeedUpdate = true;
     }
   }
   // update position of all vertices
@@ -125,11 +126,11 @@ World.prototype.step = function() {
     v.setY(this.walkers[i].location.y)
 
     if (this.walkers[i].opacity < 1) {
-      this.clouds.Walker.geometry.colors[i] = new Color(0x111111);
+      this.clouds.Walker.geometry.colors[i] = new Color(0xFF1111);
       this.clouds.Walker.geometry.colorsNeedUpdate = true;
     }
   }
-  this.clouds.FastAgent.geometry.verticesNeedUpdate = true;
+  this.clouds.Agent.geometry.verticesNeedUpdate = true;
   this.clouds.Walker.geometry.verticesNeedUpdate = true;
 
   this.location.add(this._camera);
