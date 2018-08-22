@@ -31,7 +31,7 @@ const rand = Flora.Utils.getRandomNumber;
 
 const NUM_AGENTS = 10
 const NUM_WALKERS = 50
-const NUM_RESOURCES = 50
+const NUM_RESOURCES = 100
 
 let scene, camera, controls, engine, renderer, composer, world
 
@@ -64,7 +64,7 @@ function huntersAndPrey() {
     })
 
     for (var i = 0; i < NUM_RESOURCES; i ++) {
-      const location = new Flora.Vector(rand(world.width * 0.45, world.width * 0.55), rand(world.height * 0.45, world.height * 0.55));
+      const location = new Flora.Vector(rand(world.width * 0.25, world.width * 0.75), rand(world.height * 0.25, world.height * 0.75));
       this.add('Resource', {
         type: 'Food',
         location,

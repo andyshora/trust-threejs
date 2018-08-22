@@ -104,7 +104,15 @@ Walker.prototype.applyAdditionalForces = function() {
     }
   }
 
+  const noiseMultiplier = sensorActivated ? 1 : 0.2;
 
+  // point to a random angle and move toward it
+  this._randomVector.x = 1;
+  this._randomVector.y = 1;
+  this._randomVector.normalize();
+  this._randomVector.rotate(Utils.degreesToRadians(Utils.getRandomNumber(0, 359)));
+  this._randomVector.mult(this.maxSpeed * noiseMultiplier);
+  this.applyForce(this._randomVector);
 
   if (!sensorActivated) {
 
@@ -121,14 +129,6 @@ Walker.prototype.applyAdditionalForces = function() {
         this.acceleration.y =  Utils.map(SimplexNoise.noise(0, this.perlinTime + this.perlinOffsetY), -1, 1, this.perlinAccelLow, this.perlinAccelHigh);
       }
     }
-    
-    // point to a random angle and move toward it
-    this._randomVector.x = 1;
-    this._randomVector.y = 1;
-    this._randomVector.normalize();
-    this._randomVector.rotate(Utils.degreesToRadians(Utils.getRandomNumber(0, 359)));
-    this._randomVector.mult(this.maxSpeed);
-    this.applyForce(this._randomVector);
 
     if (this.flocking) {
       this._flock(System.getAllItemsByName(this.name));
