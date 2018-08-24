@@ -92,21 +92,29 @@ World.prototype.removeItem = function(item, data) {
     index = _.findIndex(data.list, i => i.id === item.id);
     // splice item from list
     const removedItems = _.remove(data.list, i => i.id === item.id);
-    if (removedItems) {
-      console.warn('removedItems', removedItems);
-    }
+    // if (removedItems) {
+    //   console.warn('removedItems', removedItems);
+    // }
   }
 
   // remove vertex in point cloud
   if (index !== -1 && item.name in this.clouds) {
     const pointCloud = this.clouds[item.name]
     const removedVertex = _.remove(pointCloud.geometry.vertices, (vertex, i) => i === index);
+    const removedFragment = _.remove(pointCloud.geometry.colors, (vertex, i) => i === index);
     if (removedVertex) {
-      console.warn('removedVertex', removedVertex);
       pointCloud.geometry.verticesNeedUpdate = true;
+      pointCloud.geometry.colorsNeedUpdate = true;
+
+      // pointCloud.geometry.attributes.position.needsUpdate = true;
+      console.log('item.name', item.name, pointCloud.geometry.vertices.length);
+
+      console.log('Resource vertices', this.clouds.Resource.geometry.vertices.length);
+
+      console.log('Hawk vertices', this.clouds.Hawk.geometry.vertices.length);
+      console.log('Dove vertices', this.clouds.Dove.geometry.vertices.length);
     }
   }
-  debugger;
 }
 
 /**
@@ -114,6 +122,7 @@ World.prototype.removeItem = function(item, data) {
  * @param {Object} item An instance of item.
  */
 World.prototype.add = function(item) {
+  console.log(item.name, item.type)
   switch (item.type) {
     case 'Dove':
       this.walkers.push(item);
@@ -122,10 +131,14 @@ World.prototype.add = function(item) {
       this.clouds.Dove.geometry.colors.push(new Color(0x00FF33));
       break;
     case 'Food':
-      this.resources.push(item);
-      // add a vertex to the cloud to represent Dove's position
-      this.clouds.Resource.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
-      this.clouds.Resource.geometry.colors.push(new Color(0xFFFFFF));
+      if (item.name === 'Resource') {
+        this.resources.push(item);
+        // add a vertex to the cloud to represent Dove's position
+        this.clouds.Resource.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
+        this.clouds.Resource.geometry.colors.push(new Color(0xFFFFFF));
+      } else if (item.name === 'Sensor') {
+
+      }
       break;
     case 'Hawk':
       this.agents.push(item);

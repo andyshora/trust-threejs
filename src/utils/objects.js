@@ -5,14 +5,15 @@ export const createPointCloud = ({
   color = 0x666666,
   shape = 'disc'
 }) => {
+  console.log('createPointCloud');
   const sprite = new TextureLoader().load(`assets/images/${shape}.png`);
   const geometry = new Geometry()
+  geometry.dynamic = true;
 
   const material = new PointsMaterial({
     vertexColors: VertexColors,
     size: pointSize,
     map: sprite,
-    alphaTest: 0.5,
     transparent: true,
     sizeAttenuation: false
   })

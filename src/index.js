@@ -28,9 +28,11 @@ let WIDTH = resize.width
 let HEIGHT = resize.height
 const rand = Flora.Utils.getRandomNumber;
 
-const NUM_AGENTS = 50
-const NUM_WALKERS = 50
-const NUM_RESOURCES = 50
+let foodEaten = 0;
+
+const NUM_HAWKS = 10
+const NUM_DOVES = 10
+const NUM_RESOURCES = 200
 
 let scene, camera, controls, engine, renderer, composer, world
 
@@ -57,7 +59,7 @@ function huntersAndPrey() {
         color: 0x00FFFF
       },
       Resource: {
-        pointSize: 50,
+        pointSize: 10,
         color: 0xFFFFFF
       }
     })
@@ -71,9 +73,7 @@ function huntersAndPrey() {
       });
     }
 
-
-
-    for (var i = 0; i < NUM_WALKERS; i ++) {
+    for (var i = 0; i < NUM_DOVES; i ++) {
       this.add('Walker', {
         type: 'Dove',
         location: new Flora.Vector(world.width * 0.6, world.height * 0.9),
@@ -87,20 +87,29 @@ function huntersAndPrey() {
           this.add('Sensor', {
             type: 'Food',
             targetClass: 'Resource',
-            sensitivity: 400,
+            sensitivity: 200,
             behavior: 'EAT',
             onConsume: (sensor, resource) => {
-              const dove = sensor.parent;
+              const winner = sensor.parent;
+              // console.log('winner eats', winner.id, winner.FoodLevel)
+              foodEaten += 1
+              console.warn(foodEaten)
               System.remove(resource, {
                 list: resource.world.resources
               })
             }
+          }),
+          this.add('Sensor', {
+            type: 'Food',
+            targetClass: 'Resource',
+            sensitivity: 100,
+            behavior: 'AGGRESSIVE'
           })
         ]
       });
     }
 
-    for (var i = 0; i < NUM_AGENTS; i ++) {
+    for (var i = 0; i < NUM_HAWKS; i ++) {
       this.add('Walker', {
         type: 'Hawk',
         location: new Flora.Vector(world.width * 0.1, world.height * 0.5),
@@ -113,20 +122,31 @@ function huntersAndPrey() {
           this.add('Sensor', {
             type: 'Food',
             targetClass: 'Resource',
-            sensitivity: 400,
+            sensitivity: 200,
             behavior: 'EAT',
             onConsume: (sensor, resource) => {
-              const hawk = sensor.parent;
+              const winner = sensor.parent;
+              // console.log('winner eats', winner.id, winner.FoodLevel)
+              foodEaten += 1
+              console.warn(foodEaten)
               System.remove(resource, {
                 list: resource.world.resources
               })
             }
+          }),
+          this.add('Sensor', {
+            type: 'Food',
+            targetClass: 'Resource',
+            sensitivity: 100,
+            behavior: 'AGGRESSIVE'
           })
         ]
       });
     }
 
     this.frameFunction = function() {
+
+      // todo - spring up new resources
 
       return;
       const agents = world.agents;

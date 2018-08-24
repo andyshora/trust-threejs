@@ -2,6 +2,7 @@ import { Utils, Vector } from 'burner';
 
 import Mover from './Mover';
 import System from './System';
+import CollisionUtils from './CollisionUtils';
 /**
  * Creates a new Sensor object.
  *
@@ -177,7 +178,9 @@ Sensor.prototype.getBehavior = function() {
          * CONSUME
          * If inside the target, target shrinks.
          */
-         if (Utils.isInside(sensor.parent, target)) {
+        const collisionTolerance = 1;
+
+         if (CollisionUtils.isInside(sensor.parent, target, collisionTolerance)) {
 
             if (!sensor.parent[target.type + 'Level']) {
               sensor.parent[target.type + 'Level'] = 0;
@@ -190,6 +193,38 @@ Sensor.prototype.getBehavior = function() {
               sensor.onConsume(sensor, target);
             }
             return;
+         } else if (false) {
+           /**
+            * AGGRESSIVE
+            * Steer and arrive at target. Aggressive agents will hit their target.
+            */
+
+           // velocity = difference in location
+           var desiredVelocity = Vector.VectorSub(target.location, this.location);
+
+           // get distance to target
+           var distanceToTarget = desiredVelocity.mag();
+
+           if (distanceToTarget < this.width * 2) {
+
+             // normalize desiredVelocity so we can adjust. ie: magnitude = 1
+             desiredVelocity.normalize();
+
+             // as agent gets closer, velocity decreases
+             var m = distanceToTarget / this.maxSpeed;
+
+             // extend desiredVelocity vector
+             desiredVelocity.mult(m);
+
+           }
+
+           // subtract current velocity from desired to create a steering force
+           desiredVelocity.sub(this.velocity);
+
+           // limit to the maxSteeringForce
+           desiredVelocity.limit(this.maxSteeringForce);
+
+           return desiredVelocity;
          }
       };
 
