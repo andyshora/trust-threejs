@@ -21,7 +21,7 @@ Utils.extend(Sensor, Mover);
  * @param  {Object} world An instance of World.
  * @param  {Object} [opt_options=] A map of initial properties.
  * @param {string} [opt_options.type = ''] The type of stimulus that can activate this sensor. eg. 'cold', 'heat', 'light', 'oxygen', 'food', 'predator'
- * @param {string} [opt_options.targetClass = 'Stimulus'] The class of Item that can activate this sensor. eg. 'Stimulus', 'Agent', 'Sheep', 'Wolf'
+ * @param {string} [opt_options.targetType = 'Stimulus'] The class of Item that can activate this sensor. eg. 'Stimulus', 'Agent', 'Sheep', 'Wolf'
  * @param {string} [opt_options.behavior = ''] The vehicle carrying the sensor will invoke this behavior when the sensor is activated.
  * @param {number} [opt_options.sensitivity = 200] The higher the sensitivity, the farther away the sensor will activate when approaching a stimulus.
  * @param {number} [opt_options.width = 7] Width.
@@ -45,7 +45,7 @@ Sensor.prototype.init = function(world, opt_options) {
   var options = opt_options || {};
 
   this.type = options.type || '';
-  this.targetClass = options.targetClass || 'Stimulus';
+  this.targetType = options.targetType || 'Stimulus';
   this.behavior = options.behavior || function() {};
   this.sensitivity = typeof options.sensitivity !== 'undefined' ? options.sensitivity : 200;
   this.width = typeof options.width !== 'undefined' ? options.width : 7;
@@ -115,8 +115,7 @@ Sensor.prototype.step = function() {
    * Check if any Stimulus objects exist that match this sensor. If so,
    * loop thru the list and check if sensor should activate.
    */
-
-  var list = System.getAllItemsByAttribute('type', this.type, this.targetClass || 'Stimulus');
+  var list = System.getAllItemsByAttribute('type', this.type, this.targetType || 'Stimulus');
 
   for (var i = 0, max = list.length; i < max; i++) {
     if (this._sensorActive(list[i], this.sensitivity)) {

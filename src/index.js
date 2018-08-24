@@ -30,9 +30,11 @@ const rand = Flora.Utils.getRandomNumber;
 
 let foodEaten = 0;
 
-const NUM_HAWKS = 10
-const NUM_DOVES = 10
-const NUM_RESOURCES = 200
+const NUM_HAWKS = 30
+const NUM_DOVES = 30
+const NUM_RESOURCES = 100
+const SENSOR_AGGRESSIVE = 300
+const SENSOR_EAT = 50
 
 let scene, camera, controls, engine, renderer, composer, world
 
@@ -52,21 +54,25 @@ function huntersAndPrey() {
       c: 0,
       Hawk: {
         pointSize: 10,
-        color: 0xFF00FF
+        color: 0xFF00FF,
+        shape: 'spark'
       },
       Dove: {
         pointSize: 10,
-        color: 0x00FFFF
+        color: 0xFFFFFF,
+        shape: 'spark'
       },
       Resource: {
         pointSize: 10,
-        color: 0xFFFFFF
+        color: 0xFFFF00,
+        shape: 'spark'
       }
     })
 
     for (var i = 0; i < NUM_RESOURCES; i ++) {
       const location = new Flora.Vector(rand(world.width * 0.25, world.width * 0.75), rand(world.height * 0.25, world.height * 0.75));
       this.add('Resource', {
+        name: 'Food',
         type: 'Food',
         location,
         isStatic: true
@@ -75,6 +81,7 @@ function huntersAndPrey() {
 
     for (var i = 0; i < NUM_DOVES; i ++) {
       this.add('Walker', {
+        name: 'Dove',
         type: 'Dove',
         location: new Flora.Vector(world.width * 0.6, world.height * 0.9),
         maxSpeed: 0.01,
@@ -86,23 +93,23 @@ function huntersAndPrey() {
         sensors: [
           this.add('Sensor', {
             type: 'Food',
-            targetClass: 'Resource',
-            sensitivity: 200,
+            targetType: 'Resource',
+            sensitivity: SENSOR_EAT,
             behavior: 'EAT',
             onConsume: (sensor, resource) => {
               const winner = sensor.parent;
               // console.log('winner eats', winner.id, winner.FoodLevel)
               foodEaten += 1
               console.warn(foodEaten)
-              System.remove(resource, {
-                list: resource.world.resources
-              })
+              // System.remove(resource, {
+              //   list: resource.world.resources
+              // })
             }
           }),
           this.add('Sensor', {
             type: 'Food',
-            targetClass: 'Resource',
-            sensitivity: 100,
+            targetType: 'Resource',
+            sensitivity: SENSOR_AGGRESSIVE,
             behavior: 'AGGRESSIVE'
           })
         ]
@@ -111,33 +118,33 @@ function huntersAndPrey() {
 
     for (var i = 0; i < NUM_HAWKS; i ++) {
       this.add('Walker', {
+        name: 'Hawk',
         type: 'Hawk',
         location: new Flora.Vector(world.width * 0.1, world.height * 0.5),
-        // seekTarget: world.walkers[i],
         motorSpeed: 2,
         minSpeed: 1,
-        maxSpeed: 6,
+        maxSpeed: 2,
         // flocking: true,
         sensors: [
           this.add('Sensor', {
             type: 'Food',
-            targetClass: 'Resource',
-            sensitivity: 200,
+            targetType: 'Resource',
+            sensitivity: SENSOR_EAT,
             behavior: 'EAT',
             onConsume: (sensor, resource) => {
               const winner = sensor.parent;
               // console.log('winner eats', winner.id, winner.FoodLevel)
               foodEaten += 1
               console.warn(foodEaten)
-              System.remove(resource, {
-                list: resource.world.resources
-              })
+              // System.remove(resource, {
+              //   list: resource.world.resources
+              // })
             }
           }),
           this.add('Sensor', {
             type: 'Food',
-            targetClass: 'Resource',
-            sensitivity: 100,
+            targetType: 'Resource',
+            sensitivity: SENSOR_AGGRESSIVE,
             behavior: 'AGGRESSIVE'
           })
         ]
