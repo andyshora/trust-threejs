@@ -1,7 +1,11 @@
 import { Geometry, Points, PointsMaterial, Math, TextureLoader, Vector3, VertexColors } from 'three'
 
-export const createPointCloud = ({ pointSize = 1, color = 0x666666 }) => {
-  const sprite = new TextureLoader().load('assets/images/disc.png');
+export const createPointCloud = ({
+  pointSize = 1,
+  color = 0x666666,
+  shape = 'disc'
+}) => {
+  const sprite = new TextureLoader().load(`assets/images/${shape}.png`);
   const geometry = new Geometry()
 
   const material = new PointsMaterial({

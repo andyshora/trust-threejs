@@ -188,15 +188,15 @@ System._cleanObj = function(obj) {
  * @memberof System
  * @param {Object} obj The item to remove.
  */
-System.remove = function (obj) {
-
+System.remove = function (obj, data) {
   var i, max, records = System._records;
 
   for (i = 0, max = records.length; i < max; i++) {
     if (records[i].id === obj.id) {
-      if (records[i].el) {
-        records[i].el.style.visibility = 'hidden'; // hide item
+      if (typeof records[i].world.removeItem === 'function') {
+        records[i].world.removeItem(records[i], data);
       }
+
       System._pool[System._pool.length] = records.splice(i, 1)[0]; // move record to pool array
       break;
     }

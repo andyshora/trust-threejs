@@ -40,7 +40,6 @@ Utils.extend(Sensor, Mover);
  */
 Sensor.prototype.init = function(world, opt_options) {
   Sensor._superClass.init.call(this, world, opt_options);
-  console.log('Sensor.init', opt_options);
 
   var options = opt_options || {};
 
@@ -171,6 +170,28 @@ Sensor.prototype.getBehavior = function() {
   var i, iMax, j, jMax;
 
   switch (this.behavior) {
+    case 'EAT':
+      return function(sensor, target) {
+
+        /**
+         * CONSUME
+         * If inside the target, target shrinks.
+         */
+         if (Utils.isInside(sensor.parent, target)) {
+
+            if (!sensor.parent[target.type + 'Level']) {
+              sensor.parent[target.type + 'Level'] = 0;
+            }
+            // inc FoodLevel for whoever just had a bite
+            sensor.parent[target.type + 'Level'] += 1;
+
+            if (sensor.onConsume && !target.consumed) {
+              target.consumed = true;
+              sensor.onConsume(sensor, target);
+            }
+            return;
+         }
+      };
 
     case 'CONSUME':
       return function(sensor, target) {
@@ -181,6 +202,7 @@ Sensor.prototype.getBehavior = function() {
          */
          if (Utils.isInside(sensor.parent, target)) {
 
+           // todo - fight happens here?
             if (target.width > 2) {
               target.width *= 0.95;
               if (!sensor.parent[target.type + 'Level']) {

@@ -1,7 +1,8 @@
 var Vector = require('vector2d-lib'),
     Item = require('./Item'),
-    Agent = require('./Agent'),
     Utils = require('drawing-utils-lib');
+
+import _ from 'lodash'
 
 import {
   Color,
@@ -25,9 +26,21 @@ function World(opt_options) {
   this.name = 'World';
 
   this.clouds = {
-    Agent: createPointCloud({ pointSize: options.Agent.pointSize, color: options.Agent.color }),
-    Walker: createPointCloud({ pointSize: options.Walker.pointSize, color: options.Walker.color }),
-    Resource: createPointCloud({ pointSize: options.Resource.pointSize, color: options.Resource.color })
+    Hawk: createPointCloud({
+      pointSize: options.Hawk.pointSize,
+      color: options.Hawk.color,
+      shape: options.Hawk.shape
+    }),
+    Dove: createPointCloud({
+      pointSize: options.Dove.pointSize,
+      color: options.Dove.color,
+      shape: options.Dove.shape
+    }),
+    Resource: createPointCloud({
+      pointSize: options.Resource.pointSize,
+      color: options.Resource.color,
+      shape: options.Resource.shape
+    })
   };
 
 
@@ -73,6 +86,29 @@ World.prototype.init = function(world, opt_options) {
   this.walkers = [];
 };
 
+World.prototype.removeItem = function(item, data) {
+  let index = -1;
+  if (data && data.list) {
+    index = _.findIndex(data.list, i => i.id === item.id);
+    // splice item from list
+    const removedItems = _.remove(data.list, i => i.id === item.id);
+    if (removedItems) {
+      console.warn('removedItems', removedItems);
+    }
+  }
+
+  // remove vertex in point cloud
+  if (index !== -1 && item.name in this.clouds) {
+    const pointCloud = this.clouds[item.name]
+    const removedVertex = _.remove(pointCloud.geometry.vertices, (vertex, i) => i === index);
+    if (removedVertex) {
+      console.warn('removedVertex', removedVertex);
+      pointCloud.geometry.verticesNeedUpdate = true;
+    }
+  }
+  debugger;
+}
+
 /**
  * Adds an item to the world's view.
  * @param {Object} item An instance of item.
@@ -81,21 +117,21 @@ World.prototype.add = function(item) {
   switch (item.type) {
     case 'Dove':
       this.walkers.push(item);
-      // add a vertex to the cloud to represent Walker's position
-      this.clouds.Walker.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
-      this.clouds.Walker.geometry.colors.push(new Color(0x00FF33));
+      // add a vertex to the cloud to represent Dove's position
+      this.clouds.Dove.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
+      this.clouds.Dove.geometry.colors.push(new Color(0x00FF33));
       break;
     case 'Food':
       this.resources.push(item);
-      // add a vertex to the cloud to represent Walker's position
+      // add a vertex to the cloud to represent Dove's position
       this.clouds.Resource.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
       this.clouds.Resource.geometry.colors.push(new Color(0xFFFFFF));
       break;
     case 'Hawk':
       this.agents.push(item);
-      // add a vertex to the cloud to represent Agent's position
-      this.clouds.Agent.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
-      this.clouds.Agent.geometry.colors.push(new Color(0x00FFFF));
+      // add a vertex to the cloud to represent Hawk's position
+      this.clouds.Hawk.geometry.vertices.push(new Vector3(item.location.x, item.location.y, 0));
+      this.clouds.Hawk.geometry.colors.push(new Color(0x00FFFF));
       break;
     default:
       break;
@@ -110,28 +146,28 @@ World.prototype.add = function(item) {
 World.prototype.step = function() {
   // update position of all vertices
   for (let i = 0; i < this.agents.length; i++) {
-    const v = this.clouds.Agent.geometry.vertices[i]
+    const v = this.clouds.Hawk.geometry.vertices[i]
     v.setX(this.agents[i].location.x)
     v.setY(this.agents[i].location.y)
 
     if (this.agents[i].opacity < 1) {
-      this.clouds.Agent.geometry.colors[i] = new Color(0xFF1111);
-      this.clouds.Agent.geometry.colorsNeedUpdate = true;
+      this.clouds.Hawk.geometry.colors[i] = new Color(0xFF1111);
+      this.clouds.Hawk.geometry.colorsNeedUpdate = true;
     }
   }
   // update position of all vertices
   for (let i = 0; i < this.walkers.length; i++) {
-    const v = this.clouds.Walker.geometry.vertices[i]
+    const v = this.clouds.Dove.geometry.vertices[i]
     v.setX(this.walkers[i].location.x)
     v.setY(this.walkers[i].location.y)
 
     if (this.walkers[i].opacity < 1) {
-      this.clouds.Walker.geometry.colors[i] = new Color(0xFF1111);
-      this.clouds.Walker.geometry.colorsNeedUpdate = true;
+      this.clouds.Dove.geometry.colors[i] = new Color(0xFF1111);
+      this.clouds.Dove.geometry.colorsNeedUpdate = true;
     }
   }
-  this.clouds.Agent.geometry.verticesNeedUpdate = true;
-  this.clouds.Walker.geometry.verticesNeedUpdate = true;
+  this.clouds.Hawk.geometry.verticesNeedUpdate = true;
+  this.clouds.Dove.geometry.verticesNeedUpdate = true;
 
   this.location.add(this._camera);
 };

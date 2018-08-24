@@ -4,14 +4,13 @@ import WAGNER from '@superguigui/wagner'
 import BloomPass from '@superguigui/wagner/src/passes/bloom/MultiPassBloomPass'
 import FXAAPass from '@superguigui/wagner/src/passes/fxaa/FXAAPass'
 import resize from 'brindille-resize'
-import { createPointCloud } from './utils/objects'
 import OrbitControls from './controls/OrbitControls'
 import { gui } from './utils/debug'
 import noise from './noise/10000.json'
 
 import Flora from 'florajs';
 
-import Agent from './objects/Agent';
+// import Agent from './objects/Agent';
 import Item from './objects/Item';
 import Mover from './objects/Mover';
 import Resource from './objects/Resource';
@@ -29,16 +28,16 @@ let WIDTH = resize.width
 let HEIGHT = resize.height
 const rand = Flora.Utils.getRandomNumber;
 
-const NUM_AGENTS = 10
+const NUM_AGENTS = 50
 const NUM_WALKERS = 50
-const NUM_RESOURCES = 100
+const NUM_RESOURCES = 50
 
 let scene, camera, controls, engine, renderer, composer, world
 
 function huntersAndPrey() {
   System.setup(function() {
     System.Classes = {
-      Agent: Agent,
+      // Agent: Agent,
       Item: Item,
       Resource: Resource,
       Sensor: Sensor,
@@ -49,16 +48,16 @@ function huntersAndPrey() {
       height: HEIGHT,
       gravity: new Flora.Vector(),
       c: 0,
-      Agent: {
-        pointSize: 4,
+      Hawk: {
+        pointSize: 10,
         color: 0xFF00FF
       },
-      Walker: {
-        pointSize: 4,
+      Dove: {
+        pointSize: 10,
         color: 0x00FFFF
       },
       Resource: {
-        pointSize: 4,
+        pointSize: 50,
         color: 0xFFFFFF
       }
     })
@@ -88,8 +87,14 @@ function huntersAndPrey() {
           this.add('Sensor', {
             type: 'Food',
             targetClass: 'Resource',
-            sensitivity: 1000,
-            behavior: 'LOVES'
+            sensitivity: 400,
+            behavior: 'EAT',
+            onConsume: (sensor, resource) => {
+              const dove = sensor.parent;
+              System.remove(resource, {
+                list: resource.world.resources
+              })
+            }
           })
         ]
       });
@@ -108,8 +113,14 @@ function huntersAndPrey() {
           this.add('Sensor', {
             type: 'Food',
             targetClass: 'Resource',
-            sensitivity: 1000,
-            behavior: 'LOVES'
+            sensitivity: 400,
+            behavior: 'EAT',
+            onConsume: (sensor, resource) => {
+              const hawk = sensor.parent;
+              System.remove(resource, {
+                list: resource.world.resources
+              })
+            }
           })
         ]
       });
@@ -203,8 +214,8 @@ function init() {
   /* Actual content of the scene */
   const clouds = System.firstWorld().clouds;
   scene.add(clouds.Resource);
-  scene.add(clouds.Walker);
-  scene.add(clouds.Agent);
+  scene.add(clouds.Dove);
+  scene.add(clouds.Hawk);
 
   /* Various event listeners */
   resize.addListener(onResize)

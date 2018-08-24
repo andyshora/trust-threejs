@@ -26,6 +26,7 @@
     "florajs": "^3.1.2",
     "glslify": "^5.0.2",
     "guigui": "^2.0.0",
+    "lodash": "^4.17.10",
     "mouse-event-offset": "^3.0.2",
     "mouse-wheel": "^1.1.0",
     "raf-loop": "^1.1.3",
